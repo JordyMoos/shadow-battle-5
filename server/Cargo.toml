@@ -1,0 +1,9 @@
+[package]
+name = "shadow-battle-5"
+version = "0.1.0"
+authors = ["Jordy Moos"]
+
+[dependencies]
+warp = "0.1.9"
+futures = "0.1.25"
+pretty_env_logger = "0.2.5"
