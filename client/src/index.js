@@ -1,7 +1,6 @@
 'use strict';
 
 const {Elm} = require('./elm/Main.elm');
-const {PortFunnel} = require('./static/js/PortFunnel.js');
 
 try {
   let app = Elm.Main.init({
@@ -12,11 +11,28 @@ try {
   console.log('Response from init:');
   console.log(app);
 
-  PortFunnel.subscribe(app, {
-    modules: ['WebSocket'],
-    moduleDirectory: './static/js/PortFunnel',
-    portNames: ['cmdPort', 'subPort']
-  });
+  let socket = new WebSocket("ws://localhost:3030/ws");
+  socket.onerror = function(event) {
+    console.log('WebSocket error:');
+    console.log(event);
+  };
+
+  socket.onopen = function(event) {
+    console.log('WebSocket open:');
+    console.log(event);
+  };
+
+  socket.onclose = function(event) {
+    console.log('WebSocket close:');
+    console.log(event);
+  };
+
+  socket.onmessage = function(event) {
+    console.log('WebSocket message:');
+    console.log(event);
+  };
+
+
 } catch (e) {
   console.log('Error caught:');
   console.dir(e);
