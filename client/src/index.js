@@ -11,7 +11,7 @@ try {
   console.log('Response from init:');
   console.log(app);
 
-  let socket = new WebSocket("ws://localhost:3030/ws");
+  let socket = new WebSocket("ws://localhost:3030ll/ws");
   socket.onerror = function(event) {
     console.log('WebSocket error:');
     console.log(event);

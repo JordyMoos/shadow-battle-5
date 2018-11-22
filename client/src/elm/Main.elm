@@ -5,11 +5,16 @@ import Html exposing (Html)
 
 
 type alias Model =
-    {}
+    { pageState : PageState
+    }
+
+
+type PageState
+    = HomePage
 
 
 type Msg
-    = PortFunnelsMsg
+    = NoOp
 
 
 type alias Flags =
