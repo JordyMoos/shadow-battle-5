@@ -1,7 +1,8 @@
 module Html.Menu exposing (main)
 
-import Html exposing (Html, div, li, text, ul)
-import Html.Attributes exposing (class)
+import Html exposing (Html, a, div, li, text, ul)
+import Html.Attributes exposing (class, href)
+import Route
 
 
 main : Html msg
@@ -14,8 +15,8 @@ main =
             , li [] [ text "Latest member: Jordy" ]
             ]
         , ul [ class "regular" ]
-            [ li [ class "border" ] [ text "Start" ]
-            , li [ class "border" ] [ text "Help/FAQ" ]
+            [ a [ Route.href Route.Home ] [ li [ class "border" ] [ text "Start" ] ]
+            , a [ Route.href Route.Faq ] [ li [ class "border" ] [ text "Help/FAQ" ] ]
             , li [] [ text "Contact" ]
             ]
         , ul [ class "regular" ]
