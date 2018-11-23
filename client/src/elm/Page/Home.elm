@@ -1,6 +1,7 @@
 module Page.Home exposing (Model, Msg(..), init, update, view)
 
-import Html exposing (Html)
+import Html exposing (Html, div, h1, h2, li, ol, text)
+import Html.Attributes exposing (class)
 import Html.Layout as Layout
 
 
@@ -24,5 +25,18 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    Html.text "Home page"
+    div
+        []
+        [ h1 [] [ text "Shadow Battle" ]
+        , div
+            [ class "frame" ]
+            [ text "Welcome at Shadow battle"
+            ]
+        , h2 [] [ text "Rules" ]
+        , div [ class "frame" ]
+            [ ol []
+                [ li [] [ text "Lol funny naive rules" ]
+                ]
+            ]
+        ]
         |> Layout.default

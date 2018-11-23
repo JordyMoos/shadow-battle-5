@@ -2,16 +2,15 @@
 body  {
 	background-image: url(../images/layout/bgimg.gif);
 	font-family: "verdana", sans-serif; 
-	font-size: 11px;
+	font-size: 14px;
 	margin: 0;
 }
-
 h1, h2, h3, h4, h5 {
 	background: #6b8664;
 	color: #000000;
 	text-align: center;
 	letter-spacing: 5px;
-	font-size: 12px;
+	font-size: 16px;
 	margin: 0 0 2px 0;
 	padding: 0;
 }

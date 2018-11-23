@@ -35,6 +35,6 @@ body content =
     div
         [ id "body" ]
         [ div [ id "menu" ] [ Html.Menu.main ]
-        , div [ id "cotnetn" ] [ content ]
+        , div [ id "content" ] [ content ]
         , br [ class "clear" ] []
         ]
