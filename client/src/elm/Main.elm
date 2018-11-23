@@ -5,6 +5,7 @@ import Browser.Navigation as Nav
 import Html exposing (Html)
 import Page.Faq as Faq
 import Page.Home as Home
+import Page.User.Join as UserJoin
 import Route
 import Url exposing (Url)
 
@@ -19,6 +20,7 @@ type alias Model =
 type PageState
     = HomePage Home.Model
     | FaqPage Faq.Model
+    | UserJoinPage UserJoin.Model
 
 
 type Msg
@@ -26,6 +28,7 @@ type Msg
     | UrlChanged Url
     | HomeMsg Home.Msg
     | FaqMsg Faq.Msg
+    | UserJoinMsg UserJoin.Msg
     | NoOp
 
 
@@ -61,10 +64,6 @@ init flags url key =
 
 changeRouteTo : Maybe Route.Route -> Model -> ( Model, Cmd Msg )
 changeRouteTo maybeRoute model =
-    let
-        _ =
-            Debug.log "route" (Debug.toString maybeRoute)
-    in
     case maybeRoute of
         Nothing ->
             ( model, Cmd.none )
@@ -87,6 +86,15 @@ changeRouteTo maybeRoute model =
             , Cmd.map FaqMsg pageCmd
             )
 
+        Just Route.UserJoin ->
+            let
+                ( pageModel, pageCmd ) =
+                    UserJoin.init
+            in
+            ( { model | pageState = UserJoinPage pageModel }
+            , Cmd.map UserJoinMsg pageCmd
+            )
+
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -97,13 +105,12 @@ update msg model =
         ( FaqMsg pageMsg, FaqPage pageModel ) ->
             ( model, Cmd.none )
 
+        ( UserJoinMsg pageMsg, UserJoinPage pageModel ) ->
+            ( model, Cmd.none )
+
         ( LinkClicked urlRequest, _ ) ->
             case urlRequest of
                 Browser.Internal url ->
-                    let
-                        _ =
-                            Debug.log "url" (Debug.toString url)
-                    in
                     ( model, Nav.pushUrl model.key (Url.toString url) )
 
                 Browser.External href ->
@@ -128,6 +135,10 @@ view model =
             FaqPage pageModel ->
                 Faq.view pageModel
                     |> Html.map FaqMsg
+
+            UserJoinPage pageModel ->
+                UserJoin.view pageModel
+                    |> Html.map UserJoinMsg
         ]
     }
 

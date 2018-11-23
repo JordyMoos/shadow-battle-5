@@ -22,6 +22,6 @@ main =
         , ul [ class "regular" ]
             [ li [ class "border" ] [ text "Login" ]
             , li [ class "border" ] [ text "Activate" ]
-            , li [] [ text "Sign up" ]
+            , a [ Route.href Route.UserJoin ] [ li [] [ text "Sign up" ] ]
             ]
         ]

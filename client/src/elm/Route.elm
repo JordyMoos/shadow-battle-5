@@ -10,6 +10,7 @@ import Url.Parser as Parser exposing ((</>), Parser, oneOf, s, string)
 type Route
     = Home
     | Faq
+    | UserJoin
 
 
 parser : Parser (Route -> a) a
@@ -17,6 +18,7 @@ parser =
     oneOf
         [ Parser.map Home Parser.top
         , Parser.map Faq (s "faq")
+        , Parser.map UserJoin (s "join")
         ]
 
 
@@ -45,5 +47,8 @@ routeToString route =
 
                 Faq ->
                     [ "faq" ]
+
+                UserJoin ->
+                    [ "join" ]
     in
     "/" ++ String.join "/" pieces

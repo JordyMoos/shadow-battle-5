@@ -58,6 +58,15 @@ input.normalRadio {
 	border: none;
 	background: none;
 }
+button {
+	border: 1px solid #000000;
+	color: #000000;
+	background: #9db09f;
+}
+button.normalRadio {
+	border: none;
+	background: none;
+}
 select {
 	border: 1px solid #000000;
 	color: #000000;
