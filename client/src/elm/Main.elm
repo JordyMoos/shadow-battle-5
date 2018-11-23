@@ -2,6 +2,7 @@ port module Main exposing (main)
 
 import Browser
 import Html exposing (Html)
+import Page.Home as Home
 
 
 type alias Model =
@@ -10,11 +11,11 @@ type alias Model =
 
 
 type PageState
-    = HomePage
+    = HomePage Home.Model
 
 
 type Msg
-    = NoOp
+    = HomeMsg Home.Msg
 
 
 type alias Flags =
@@ -33,19 +34,34 @@ main =
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    ( {}
-    , Cmd.none
+    let
+        ( homeModel, homeCmd ) =
+            Home.init
+    in
+    ( { pageState = HomePage homeModel
+      }
+    , Cmd.map HomeMsg homeCmd
     )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case ( msg, model.pageState ) of
+        ( HomeMsg pageMsg, HomePage pageModel ) ->
+            ( model, Cmd.none )
+
+
+
+--        ( _, _ ) ->
+--            ( model, Cmd.none )
 
 
 view : Model -> Html Msg
 view model =
-    Html.text "Shadow battle 5"
+    case model.pageState of
+        HomePage homeModel ->
+            Home.view homeModel
+                |> Html.map HomeMsg
 
 
 subscriptions : Model -> Sub Msg
