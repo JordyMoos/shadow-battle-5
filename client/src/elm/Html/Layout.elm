@@ -2,6 +2,7 @@ module Html.Layout exposing (default)
 
 import Html exposing (Html, br, div)
 import Html.Attributes exposing (class, id)
+import Html.Menu
 
 
 default : Html msg -> Html msg
@@ -33,7 +34,7 @@ body : Html msg -> Html msg
 body content =
     div
         [ id "body" ]
-        [ div [ id "menu" ] [ Html.text "menu" ]
+        [ div [ id "menu" ] [ Html.Menu.main ]
         , div [ id "cotnetn" ] [ content ]
         , br [ class "clear" ] []
         ]
