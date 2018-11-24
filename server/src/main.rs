@@ -78,6 +78,7 @@ fn user_connected(ws: WebSocket, connections: Connections) -> impl Future<Item =
 
     connection_ws_rx
         .for_each(move |_msg| {
+            handle_message(my_id, msg, &connections);
             Ok(())
         })
         // for_each will keep processing as long as the connection stays alive
@@ -90,6 +91,11 @@ fn user_connected(ws: WebSocket, connections: Connections) -> impl Future<Item =
         .map_err(move |e| {
             eprintln!("websocket error(uid={}): {}", my_id, e);
         })
+}
+
+
+fn handle_message(my_id: usize, msg: Message, connections: &Connections) {
+    
 }
 
 
