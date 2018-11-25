@@ -117,15 +117,12 @@ fn user_connected(ws: WebSocket, connections: Connections) -> impl Future<Item =
 
 fn handle_message(my_id: usize, msg: Message, connections: &Connections) {
     let request_as_result = msg.to_str()
-        .map(|string_msg| as_request(string_msg));
+        .and_then(|string_msg| as_request(string_msg)
+            .map_err(|_err| ())
+        );
 
     let request = if let Ok(r) = request_as_result {
-        if let Ok(r2) = r {
-            r2
-        } else {
-            eprintln!("Could not convert body to valid Requests 2");
-            return;
-        }
+        r
     } else {
         eprintln!("Could not convert body to valid Requests");
         return;
