@@ -2,6 +2,9 @@
 extern crate futures;
 extern crate pretty_env_logger;
 extern crate warp;
+extern crate serde;
+extern crate serde_json;
+#[macro_use] extern crate serde_derive;
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, atomic::{AtomicUsize, Ordering}};
@@ -14,8 +17,26 @@ use warp::ws::{Message, WebSocket};
 /// Unique id counter
 static NEXT_CONNECTION_ID: AtomicUsize = AtomicUsize::new(1);
 
-/// State of current connections
 type Connections = Arc<Mutex<HashMap<usize, mpsc::UnboundedSender<Message>>>>;
+
+//static NEXT_USER_ID: AtomicUsize = AtomicUsize::new(1);
+//struct UserData {
+//    id: usize,
+//    name: String,
+//    money: i32,
+//}
+//
+//type Users = Arc<Mutex<HashMap<usize, UserData>>>;
+
+#[derive(Deserialize)]
+enum Requests {
+    Register { username: String },
+}
+
+//enum Responses {
+//    Error { message: String},
+//    Registered { id: usize, username: String }
+//}
 
 
 fn main() {
@@ -94,8 +115,35 @@ fn user_connected(ws: WebSocket, connections: Connections) -> impl Future<Item =
 }
 
 
-fn handle_message(_my_id: usize, _msg: Message, _connections: &Connections) {
-    
+fn handle_message(my_id: usize, msg: Message, connections: &Connections) {
+    let request_as_result = msg.to_str()
+        .map(|string_msg| as_request(string_msg));
+
+    let request = if let Ok(r) = request_as_result {
+        if let Ok(r2) = r {
+            r2
+        } else {
+            eprintln!("Could not convert body to valid Requests 2");
+            return;
+        }
+    } else {
+        eprintln!("Could not convert body to valid Requests");
+        return;
+    };
+
+    match request {
+        Requests::Register { username } => handle_register(my_id, connections, username),
+    };
+}
+
+
+fn handle_register(_my_id: usize, _connections: &Connections, username: String) {
+    eprintln!("I'm in handle_register with username: {}", username);
+}
+
+
+fn as_request(string_msg: &str) -> serde_json::Result<Requests> {
+    serde_json::from_str(string_msg)
 }
 
 
@@ -108,8 +156,6 @@ fn connection_disconnected(my_id: usize, connections: &Connections) {
         .unwrap()
         .remove(&my_id);
 }
-
-
 
 
 static INDEX_HTML: &str = r#"

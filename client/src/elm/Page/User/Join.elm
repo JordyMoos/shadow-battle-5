@@ -49,7 +49,7 @@ type alias Register =
 registerEncoder : Register -> Encode.Value
 registerEncoder register =
     Encode.object
-        [ ( "register"
+        [ ( "Register"
           , Encode.object
                 [ ( "username", Encode.string register.username )
                 ]
@@ -112,6 +112,6 @@ formSubmit =
         [ td [] [ text "" ]
         , td
             []
-            [ button [ Attr.type_ "submit", Events.onClick Submit ] [ text "Join" ]
+            [ button [ Attr.type_ "submit" ] [ text "Join" ]
             ]
         ]
