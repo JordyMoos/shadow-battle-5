@@ -1,4 +1,4 @@
-port module Page.User.Join exposing (Model, Msg(..), init, update, view)
+module Page.User.Join exposing (Model, Msg(..), init, update, view)
 
 import Html
     exposing
