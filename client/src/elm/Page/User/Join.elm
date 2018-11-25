@@ -1,4 +1,4 @@
-module Page.User.Join exposing (Model, Msg(..), init, update, view)
+port module Page.User.Join exposing (Model, Msg(..), init, update, view)
 
 import Html
     exposing
@@ -18,25 +18,55 @@ import Html
         , tr
         )
 import Html.Attributes as Attr exposing (class)
+import Html.Events as Events
 import Html.Layout as Layout
+import Json.Encode as Encode
+import Ports
 
 
 type alias Model =
-    {}
+    { username : String
+    }
 
 
 type Msg
-    = NoOp
+    = SetUsername String
+    | Submit
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( {}, Cmd.none )
+    ( { username = ""
+      }
+    , Cmd.none
+    )
+
+
+type alias Register =
+    { username : String }
+
+
+registerEncoder : Register -> Encode.Value
+registerEncoder register =
+    Encode.object
+        [ ( "register"
+          , Encode.object
+                [ ( "username", Encode.string register.username )
+                ]
+          )
+        ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        SetUsername username ->
+            ( { model | username = username }, Cmd.none )
+
+        Submit ->
+            ( model
+            , registerEncoder { username = model.username } |> Ports.send
+            )
 
 
 view : Model -> Html Msg
@@ -47,9 +77,9 @@ view model =
         , div
             [ class "frame" ]
             [ div [ class "register" ]
-                [ form []
+                [ form [ Events.onSubmit Submit ]
                     [ table []
-                        [ formUsername model
+                        [ formUsername model.username
                         , formSubmit
                         ]
                     ]
@@ -59,17 +89,18 @@ view model =
         |> Layout.default
 
 
-formUsername : Model -> Html Msg
-formUsername model =
+formUsername : String -> Html Msg
+formUsername username =
     tr
         []
-        [ td
-            []
-            [ label [ Attr.for "username" ] [ text "Username" ]
-            ]
-        , td
-            []
-            [ input [ Attr.id "username", Attr.type_ "text", Attr.name "username", Attr.value "" ] []
+        [ td [] [ label [ Attr.for "username" ] [ text "Username" ] ]
+        , td []
+            [ input
+                [ Attr.id "username"
+                , Attr.value username
+                , Events.onInput SetUsername
+                ]
+                []
             ]
         ]
 
@@ -81,6 +112,6 @@ formSubmit =
         [ td [] [ text "" ]
         , td
             []
-            [ button [] [ text "Join" ]
+            [ button [ Attr.type_ "submit" ] [ text "Join" ]
             ]
         ]
