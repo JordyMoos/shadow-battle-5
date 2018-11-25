@@ -77,7 +77,7 @@ fn user_connected(ws: WebSocket, connections: Connections) -> impl Future<Item =
     let connections2 = connections.clone();
 
     connection_ws_rx
-        .for_each(move |_msg| {
+        .for_each(move |msg| {
             handle_message(my_id, msg, &connections);
             Ok(())
         })
@@ -94,7 +94,7 @@ fn user_connected(ws: WebSocket, connections: Connections) -> impl Future<Item =
 }
 
 
-fn handle_message(my_id: usize, msg: Message, connections: &Connections) {
+fn handle_message(_my_id: usize, _msg: Message, _connections: &Connections) {
     
 }
 

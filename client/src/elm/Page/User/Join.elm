@@ -64,12 +64,8 @@ update msg model =
             ( { model | username = username }, Cmd.none )
 
         Submit ->
-            let
-                _ =
-                    Debug.log "Calling" "Ports.sendToWebSocket"
-            in
             ( model
-            , registerEncoder { username = model.username } |> Ports.sendToWebSocket
+            , registerEncoder { username = model.username } |> Ports.send
             )
 
 
