@@ -10,8 +10,8 @@ try {
 
   console.log('Response from init:');
   console.log(app);
-
-  // app.ports.send.subscribe(function (data) {
+  //
+  // app.ports.sendToWebSocket.subscribe(function (data) {
   //   console.log('In send:');
   //   console.log(data);
   // });

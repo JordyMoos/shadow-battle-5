@@ -64,8 +64,12 @@ update msg model =
             ( { model | username = username }, Cmd.none )
 
         Submit ->
+            let
+                _ =
+                    Debug.log "Calling" "Ports.sendToWebSocket"
+            in
             ( model
-            , registerEncoder { username = model.username } |> Ports.send
+            , registerEncoder { username = model.username } |> Ports.sendToWebSocket
             )
 
 
@@ -112,6 +116,6 @@ formSubmit =
         [ td [] [ text "" ]
         , td
             []
-            [ button [ Attr.type_ "submit" ] [ text "Join" ]
+            [ button [ Attr.type_ "submit", Events.onClick Submit ] [ text "Join" ]
             ]
         ]

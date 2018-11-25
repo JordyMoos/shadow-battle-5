@@ -1,9 +1,9 @@
-port module Ports exposing (receive, send)
+port module Ports exposing (receive, sendToWebSocket)
 
 import Json.Encode as Encode
 
 
-port send : Encode.Value -> Cmd msg
+port sendToWebSocket : Encode.Value -> Cmd msg
 
 
 port receive : (Encode.Value -> msg) -> Sub msg

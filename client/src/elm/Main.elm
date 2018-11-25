@@ -3,9 +3,11 @@ module Main exposing (main)
 import Browser
 import Browser.Navigation as Nav
 import Html exposing (Html)
+import Json.Decode as Decode
 import Page.Faq as Faq
 import Page.Home as Home
 import Page.User.Join as UserJoin
+import Ports
 import Route
 import Url exposing (Url)
 
@@ -29,6 +31,7 @@ type Msg
     | HomeMsg Home.Msg
     | FaqMsg Faq.Msg
     | UserJoinMsg UserJoin.Msg
+    | OnWebSocketMessage Decode.Value
     | NoOp
 
 
@@ -100,13 +103,31 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case ( msg, model.pageState ) of
         ( HomeMsg pageMsg, HomePage pageModel ) ->
-            ( model, Cmd.none )
+            let
+                ( newPageModel, newPageCmd ) =
+                    Home.update pageMsg pageModel
+            in
+            ( { model | pageState = HomePage newPageModel }
+            , Cmd.map HomeMsg newPageCmd
+            )
 
         ( FaqMsg pageMsg, FaqPage pageModel ) ->
-            ( model, Cmd.none )
+            let
+                ( newPageModel, newPageCmd ) =
+                    Faq.update pageMsg pageModel
+            in
+            ( { model | pageState = FaqPage newPageModel }
+            , Cmd.map FaqMsg newPageCmd
+            )
 
         ( UserJoinMsg pageMsg, UserJoinPage pageModel ) ->
-            ( model, Cmd.none )
+            let
+                ( newPageModel, newPageCmd ) =
+                    UserJoin.update pageMsg pageModel
+            in
+            ( { model | pageState = UserJoinPage newPageModel }
+            , Cmd.map UserJoinMsg newPageCmd
+            )
 
         ( LinkClicked urlRequest, _ ) ->
             case urlRequest of
@@ -145,4 +166,4 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Ports.receive OnWebSocketMessage
