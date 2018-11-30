@@ -13,6 +13,7 @@ use futures::{Future, Stream};
 use futures::sync::mpsc;
 use warp::Filter;
 use warp::ws::{Message, WebSocket};
+use std::error::Error;
 
 /// Unique id counter
 static NEXT_CONNECTION_ID: AtomicUsize = AtomicUsize::new(1);
@@ -116,9 +117,11 @@ fn user_connected(ws: WebSocket, connections: Connections) -> impl Future<Item =
 
 
 fn handle_message(my_id: usize, msg: Message, connections: &Connections) {
-    let request_as_result = msg.to_str()
-        .and_then(|string_msg| as_request(string_msg)
-            .map_err(|_err| ())
+    let request_as_result = msg
+        .to_str().map_err(|_err| "Could not transform body to string".to_string())
+        .and_then(|string_msg|
+            as_request(string_msg)
+                .map_err(|err| err.description().to_string())
         );
 
     let request = if let Ok(r) = request_as_result {
