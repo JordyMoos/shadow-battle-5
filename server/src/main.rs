@@ -47,8 +47,8 @@ fn main() {
     // Fake database
     let users: Users = Arc::new(Mutex::new(HashMap::new()));
     users.lock().unwrap().insert(1, UserData { id: 1, username: "jordy".to_string(), money: 100});
-    users.lock().unwrap().insert(2, UserData { id: 1, username: "bert".to_string(), money: 200});
-    users.lock().unwrap().insert(3, UserData { id: 1, username: "ernie".to_string(), money: 300});
+    users.lock().unwrap().insert(2, UserData { id: 2, username: "bert".to_string(), money: 200});
+    users.lock().unwrap().insert(3, UserData { id: 3, username: "ernie".to_string(), money: 300});
     NEXT_USER_ID.fetch_add(3, Ordering::Relaxed);
 
     let connections = Arc::new(Mutex::new(HashMap::new()));
