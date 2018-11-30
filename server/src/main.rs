@@ -20,14 +20,15 @@ static NEXT_CONNECTION_ID: AtomicUsize = AtomicUsize::new(1);
 
 type Connections = Arc<Mutex<HashMap<usize, mpsc::UnboundedSender<Message>>>>;
 
-//static NEXT_USER_ID: AtomicUsize = AtomicUsize::new(1);
-//struct UserData {
-//    id: usize,
-//    name: String,
-//    money: i32,
-//}
-//
-//type Users = Arc<Mutex<HashMap<usize, UserData>>>;
+static NEXT_USER_ID: AtomicUsize = AtomicUsize::new(1);
+#[allow(dead_code)]
+struct UserData {
+    id: usize,
+    username: String,
+    money: i32,
+}
+
+type Users = Arc<Mutex<HashMap<usize, UserData>>>;
 
 #[derive(Deserialize)]
 enum Requests {
@@ -42,6 +43,13 @@ enum Requests {
 
 fn main() {
     pretty_env_logger::init();
+
+    // Fake database
+    let users: Users = Arc::new(Mutex::new(HashMap::new()));
+    users.lock().unwrap().insert(1, UserData { id: 1, username: "jordy".to_string(), money: 100});
+    users.lock().unwrap().insert(2, UserData { id: 1, username: "bert".to_string(), money: 200});
+    users.lock().unwrap().insert(3, UserData { id: 1, username: "ernie".to_string(), money: 300});
+    NEXT_USER_ID.fetch_add(3, Ordering::Relaxed);
 
     let connections = Arc::new(Mutex::new(HashMap::new()));
     let connections = warp::any().map(move || connections.clone());
