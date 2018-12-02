@@ -1,4 +1,5 @@
 #![deny(warnings)]
+#![allow(dead_code)]
 extern crate futures;
 extern crate pretty_env_logger;
 extern crate warp;
@@ -35,10 +36,12 @@ enum Requests {
     Register { username: String },
 }
 
-//enum Responses {
+#[derive(Serialize)]
+enum Responses {
+    UsernameAlreadyExists { username: String },
 //    Error { message: String},
-//    Registered { id: usize, username: String }
-//}
+    Registered { id: usize, username: String },
+}
 
 
 fn main() {
@@ -50,6 +53,7 @@ fn main() {
     users.lock().unwrap().insert(2, UserData { id: 2, username: "bert".to_string(), money: 200});
     users.lock().unwrap().insert(3, UserData { id: 3, username: "ernie".to_string(), money: 300});
     NEXT_USER_ID.fetch_add(3, Ordering::Relaxed);
+    let users = warp::any().map(move || users.clone());
 
     let connections = Arc::new(Mutex::new(HashMap::new()));
     let connections = warp::any().map(move || connections.clone());
@@ -58,9 +62,10 @@ fn main() {
     let ws_handler = warp::path("ws")
         .and(warp::ws2())
         .and(connections)
-        .map(|ws: warp::ws::Ws2, connections| {
+        .and(users)
+        .map(|ws: warp::ws::Ws2, connections, users| {
             ws.on_upgrade(move |socket| {
-                user_connected(socket, connections)
+                user_connected(socket, connections, users)
             })
         });
 
@@ -79,7 +84,7 @@ fn main() {
 }
 
 
-fn user_connected(ws: WebSocket, connections: Connections) -> impl Future<Item = (), Error = ()> {
+fn user_connected(ws: WebSocket, connections: Connections, users: Users) -> impl Future<Item = (), Error = ()> {
     let my_id = NEXT_CONNECTION_ID.fetch_add(1, Ordering::Relaxed);
     eprintln!("New char connection: {}", my_id);
 
@@ -108,7 +113,7 @@ fn user_connected(ws: WebSocket, connections: Connections) -> impl Future<Item =
 
     connection_ws_rx
         .for_each(move |msg| {
-            handle_message(my_id, msg, &connections);
+            handle_message(my_id, msg, &connections, &users);
             Ok(())
         })
         // for_each will keep processing as long as the connection stays alive
@@ -124,7 +129,7 @@ fn user_connected(ws: WebSocket, connections: Connections) -> impl Future<Item =
 }
 
 
-fn handle_message(my_id: usize, msg: Message, connections: &Connections) {
+fn handle_message(my_id: usize, msg: Message, connections: &Connections, users: &Users) {
     let request_as_result = msg
         .to_str().map_err(|_err| "Could not transform body to string".to_string())
         .and_then(|string_msg|
@@ -140,13 +145,38 @@ fn handle_message(my_id: usize, msg: Message, connections: &Connections) {
     };
 
     match request {
-        Requests::Register { username } => handle_register(my_id, connections, username),
+        Requests::Register { username } => handle_register(my_id, connections, users, username),
     };
 }
 
 
-fn handle_register(_my_id: usize, _connections: &Connections, username: String) {
+fn handle_register(my_id: usize, connections: &Connections, users: &Users, username: String) {
     eprintln!("I'm in handle_register with username: {}", username);
+    if username_exists(users, &username) {
+        let response = Responses::UsernameAlreadyExists {
+            username
+        };
+        send_response(my_id, connections, response);
+    } else {
+        // @todo we need to add the user here
+        let response = Responses::Registered {
+            id : 0,
+            username
+        };
+        send_response(my_id, connections, response);
+    }
+}
+
+
+fn send_response(my_id: usize, connections: &Connections, response: Responses) {
+    for (&uid, tx) in connections.lock().unwrap().iter() {
+        if my_id == uid {
+            match tx.unbounded_send(Message::text(serde_json::to_string(&response).unwrap())) {
+                Ok(()) => (),
+                Err(_disconnected) => {}
+            }
+        }
+    }
 }
 
 
@@ -163,6 +193,15 @@ fn connection_disconnected(my_id: usize, connections: &Connections) {
         .lock()
         .unwrap()
         .remove(&my_id);
+}
+
+fn username_exists(users: &Users, username: &String) -> bool {
+    users
+        .lock()
+        .unwrap()
+        .iter()
+        .map(|(_user_id, user_data)| &user_data.username)
+        .any(|existing_username| username == existing_username)
 }
 
 
